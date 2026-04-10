@@ -9,10 +9,10 @@ spec:
   ingressClassName: kommander-traefik
   tls:
     - hosts:
-        - ${APP_HOST}
+        - petclinic.local
       secretName: petclinic-tls
   rules:
-    - host: ${APP_HOST}
+    - host: petclinic.local
       http:
         paths:
           - path: /

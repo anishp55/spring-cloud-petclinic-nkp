@@ -3,3 +3,9 @@ kind: Kustomization
 
 resources:
   - ../flux-base
+
+patchesStrategicMerge:
+  - ingress-patch.yaml
+    target:
+      kind: Ingress
+      name: spring-cloud-petclinic-service
