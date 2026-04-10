@@ -1,6 +1,10 @@
-- op: replace
-  path: /spec/rules/0/host
-  value: petclinic.default.teleflora-workload-cl01.buildit.services
-- op: replace
-  path: /spec/tls/0/hosts/0
-  value: petclinic.default.teleflora-workload-cl01.buildit.services
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spring-cloud-petclinic-service
+spec:
+  tls:
+    - hosts:
+        - petclinic.default.teleflora-workload-cl01.buildit.services
+  rules:
+    - host: petclinic.default.teleflora-workload-cl01.buildit.services
