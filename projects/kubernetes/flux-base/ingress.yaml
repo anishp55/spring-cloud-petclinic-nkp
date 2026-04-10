@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spring-cloud-petclinic-service
+  annotations:
+    external-dns.alpha.kubernetes.io/register: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: kommander-traefik
+  tls:
+    - hosts:
+        - ${APP_HOST}
+      secretName: petclinic-tls
+  rules:
+    - host: ${APP_HOST}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: spring-cloud-petclinic-service
+                port:
+                  number: 80
