@@ -23,9 +23,6 @@ spec:
       containers:
       - name: spring-cloud-petclinic-service
         image: ghcr.io/ericm48-gh-org/spring-cloud-petclinic-service:2.8.46-RELEASE
-        labels:
-          app: spring-cloud-petclinic-service
-
         imagePullPolicy: Always
         resources:
           limits:
@@ -57,15 +54,11 @@ spec:
           value: 'TheSuperSecretUserID33'
         - name: MY_SECRET_PASSWORD1
           value: 'TheSuperSecretPassWord33'
-
         securityContext:
-          #runAsNonRoot: true
           runAsUser: 1000
           capabilities:
             drop:
               - all
-          #readOnlyRootFilesystem: true
-
         # livenessProbe:
         #   httpGet:
         #     path: /actuator/health/liveness
@@ -78,16 +71,15 @@ spec:
         #     port: 8080
         #   initialDelaySeconds: 30
         #   periodSeconds: 3
-
-          volumeMounts:
-          - name: empty-log-volume
-            mountPath: "./logs"
-          - name: empty-config-volume
-            mountPath: "/workspace/configs"
-          - name: empty-secret-volume
-            mountPath: "/workspace/secrets"
-          - name: empty-secret-volume2
-            mountPath: "/workspace/secrets2"
+        volumeMounts:
+        - name: empty-log-volume
+          mountPath: "./logs"
+        - name: empty-config-volume
+          mountPath: "/workspace/configs"
+        - name: empty-secret-volume
+          mountPath: "/workspace/secrets"
+        - name: empty-secret-volume2
+          mountPath: "/workspace/secrets2"
 
       volumes:
       - name: empty-log-volume
@@ -111,9 +103,33 @@ metadata:
   labels:
     name: spring-cloud-petclinic-service
 spec:
-  type: LoadBalancer
   ports:
   - port: 80
     targetPort: 8080
   selector:
     name: spring-cloud-petclinic-service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spring-cloud-petclinic-service
+  annotations:
+    external-dns.alpha.kubernetes.io/register: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: kommander-traefik
+  tls:
+    - hosts:
+        - petclinic.default.teleflora-workload-cl01.buildit.services
+      secretName: petclinic-tls
+  rules:
+    - host: petclinic.default.teleflora-workload-cl01.buildit.services
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: spring-cloud-petclinic-service
+                port:
+                  number: 80
